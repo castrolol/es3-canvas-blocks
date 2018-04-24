@@ -13,6 +13,10 @@
 		canvasHandler.on('update', this.update.bind(this));
 		canvasHandler.on('draw', this.draw.bind(this));
 		canvasHandler.on('click', this.handleClick.bind(this));
+		canvasHandler.on('begindrag', this.handleBeginDrag.bind(this));
+		canvasHandler.on('dragging', this.handleDragging.bind(this));
+		canvasHandler.on('stopdrag', this.handleStopDrag.bind(this));
+
 		this.canvasHandler = canvasHandler;
 	};
 
@@ -47,8 +51,60 @@
 	};
 
 	BlocksDrawner.prototype.handleClick = function(context) {
+		if (this.dragging) return;
+
 		var block = this.blocks.filter((x) => x.pointIn(context.x, context.y))[0];
+		this.selectBlock(block);
+	};
+
+	BlocksDrawner.prototype.handleBeginDrag = function(context, enable) {
+		var pivot = this.pivots.filter((x) => x.pointIn(context.x, context.y))[0];
+
+		if (pivot) {
+			enable();
+
+			this.pivotDragging = pivot;
+			return;
+		}
+
+		var block = this.blocks.filter((x) => x.pointIn(context.x, context.y))[0];
+		this.selectBlock(block);
+
+		if (block) {
+			enable();
+
+			this.blockDragging = block;
+		}
+	};
+
+	BlocksDrawner.prototype.handleDragging = function(context) {
+		if (this.blockDragging) {
+			this.blockDragging.x += context.dragging.delta.x;
+			this.blockDragging.y += context.dragging.delta.y;
+		}
+
+		if (this.pivotDragging) {
+			var pivot = this.pivotDragging;
+
+			if (pivot.type == 'left' || pivot.type == 'right') {
+				this.selectedBlock.width += context.dragging.delta.x;
+			} else {
+				this.selectedBlock.height += context.dragging.delta.y;
+			}
+
+			var bounds = this.selectedBlock.getBounds();
+			this.pivots = [
+				new Pivot(bounds.top, 'top'),
+				new Pivot(bounds.right, 'right'),
+				new Pivot(bounds.bottom, 'bottom'),
+				new Pivot(bounds.left, 'left')
+			];
+		}
+	};
+
+	BlocksDrawner.prototype.selectBlock = function(block) {
 		this.selectedBlock = block;
+
 		if (!block) {
 			this.pivots = [];
 		} else {
@@ -62,6 +118,13 @@
 		}
 	};
 
+	BlocksDrawner.prototype.handleStopDrag = function(context) {
+		this.blockDragging = null;
+		this.pivotDragging = null;
+		var block = this.selectedBlock;
+		setTimeout(() => this.selectBlock(block));
+	};
+
 	BlocksDrawner.prototype.draw = function(context) {
 		this.blocks.map((block) => {
 			if (this.selectedBlock == block) {
@@ -71,8 +134,11 @@
 			}
 		});
 
-		this.pivots.map((pivot) => this.drawPivot(pivot, context));
+		if (!this.blockDragging) {
+			this.pivots.map((pivot) => this.drawPivot(pivot, context));
+		}
 	};
+
 	BlocksDrawner.prototype.drawBlock = function(block, context) {
 		context.ctx.beginPath();
 		context.ctx.roundRect(block.x, block.y, block.width, block.height, 4);

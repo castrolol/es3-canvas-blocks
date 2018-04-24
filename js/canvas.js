@@ -12,8 +12,11 @@
 		this._lastUpdateTime = null;
 		this._ctx = element.getContext('2d');
 		this._mouse = { x: 0, y: 0 };
+		this._lastDragPosition = { x: 0, y: 0 };
 		element.addEventListener('click', this.handleClick.bind(this));
 		element.addEventListener('mousemove', this.handleMouseMove.bind(this));
+		element.addEventListener('mousedown', this.handleMouseDown.bind(this));
+		element.addEventListener('mouseup', this.handleMouseUp.bind(this));
 	}
 
 	CanvasHandler.prototype.resolveContext = function() {
@@ -106,15 +109,57 @@
 		this._mouse.x = x;
 		this._mouse.y = y;
 
-		// this.trigger('', [
-		// 	{
-		// 		x: x,
-		// 		y: y,
-		// 		shift: shift,
-		// 		ctrl: ctrl,
-		// 		alt: alt
-		// 	}
-		// ]);
+		if (this.isDragging) {
+			this.dragging.delta = {
+				x: x - this._lastDragPosition.x,
+				y: y - this._lastDragPosition.y
+			};
+			this._lastDragPosition.x = x;
+			this._lastDragPosition.y = y;
+
+			this.trigger('dragging', [
+				{
+					dragging: this.dragging,
+					shift: shift,
+					ctrl: ctrl,
+					alt: alt
+				}
+			]);
+		}
+	};
+
+	CanvasHandler.prototype.handleMouseDown = function(e) {
+		var enableDragging = function() {
+			this.isDragging = true;
+			this.dragging = {
+				startPos: { x: e.offsetX, y: e.offsetY }
+			};
+			this._lastDragPosition = { x: e.offsetX, y: e.offsetY };
+		};
+		var x = e.offsetX;
+		var y = e.offsetY;
+		var shift = e.shiftKey;
+		var ctrl = e.ctrlKey;
+		var alt = e.altKey;
+
+		this.trigger('begindrag', [
+			{
+				x: x,
+				y: y,
+				shift: shift,
+				ctrl: ctrl,
+				alt: alt
+			},
+			enableDragging.bind(this)
+		]);
+	};
+
+	CanvasHandler.prototype.handleMouseUp = function(e) {
+		this.isDragging = false;
+		var dragging = this.dragging;
+		this.dragging = null;
+
+		this.trigger('stopdrag', [ dragging ]);
 	};
 
 	CanvasHandler.prototype.startUpdate = function() {
