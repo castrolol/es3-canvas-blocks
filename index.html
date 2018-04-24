@@ -6,8 +6,11 @@
     <title>Canvas Sample</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="./style/main.css" />
+    <script src="./js/canvas.extends.js"></script>
     <script src="./js/canvas.js"></script>
-    <script src="./js/ball-bounce.js"></script>
+    <script src="./js/blocks-drawner.js"></script>
+    <script src="./js/block.js"></script>
+    <script src="./js/pivot.js"></script>
 </head>
 <body>
     <canvas id="canvas" ></canvas>
@@ -15,14 +18,13 @@
     <script>
 
         var canvas = document.querySelector("#canvas");
-        var ball = new BallBounce();
+        var blocksDrawner = new BlocksDrawner();
 
         window.canvasHandler = new CanvasHandler(canvas, { width: 800, height: 600 });
 
         canvasHandler.startUpdate();
 
-
-ball.attach(canvasHandler);
+        blocksDrawner.attach(canvasHandler);
 
     </script>
 
