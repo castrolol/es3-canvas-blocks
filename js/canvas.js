@@ -120,6 +120,7 @@
 			this.trigger('dragging', [
 				{
 					dragging: this.dragging,
+					mouse: this._mouse,
 					shift: shift,
 					ctrl: ctrl,
 					alt: alt
