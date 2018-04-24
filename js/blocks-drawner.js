@@ -39,10 +39,25 @@
 			var pivot = this.pivots[i];
 
 			if (pivot.pointIn(context.mouse.x, context.mouse.y)) {
-				if (pivot.type == 'left' || pivot.type == 'right') {
-					cursor = 'ew-resize';
-				} else {
-					cursor = 'ns-resize';
+				switch (pivot.type) {
+					case 'left':
+					case 'right':
+						cursor = 'ew-resize';
+						break;
+					case 'top':
+					case 'bottom':
+						cursor = 'ns-resize';
+						break;
+
+					case 'top-left':
+					case 'bottom-right':
+						cursor = 'nwse-resize';
+						break;
+
+					case 'top-right':
+					case 'bottom-left':
+						cursor = 'nesw-resize';
+						break;
 				}
 			}
 		}
@@ -86,18 +101,66 @@
 		if (this.pivotDragging) {
 			var pivot = this.pivotDragging;
 
-			if (pivot.type == 'left' || pivot.type == 'right') {
-				this.selectedBlock.width += context.dragging.delta.x;
-			} else {
-				this.selectedBlock.height += context.dragging.delta.y;
+			switch (pivot.type) {
+				case 'left':
+					this.selectedBlock.x += context.dragging.delta.x;
+					this.selectedBlock.width -= context.dragging.delta.x;
+					break;
+
+				case 'right':
+					this.selectedBlock.width += context.dragging.delta.x;
+					break;
+
+				case 'top':
+					this.selectedBlock.y += context.dragging.delta.y;
+					this.selectedBlock.height -= context.dragging.delta.y;
+					break;
+
+				case 'bottom':
+					this.selectedBlock.height += context.dragging.delta.y;
+
+					break;
+
+				case 'top-left':
+					this.selectedBlock.y += context.dragging.delta.y;
+					this.selectedBlock.height -= context.dragging.delta.y;
+					this.selectedBlock.x += context.dragging.delta.x;
+					this.selectedBlock.width -= context.dragging.delta.x;
+					break;
+
+				case 'bottom-right':
+					this.selectedBlock.height += context.dragging.delta.y;
+					this.selectedBlock.width += context.dragging.delta.x;
+
+					break;
+
+				case 'top-right':
+					this.selectedBlock.width += context.dragging.delta.x;
+					this.selectedBlock.y += context.dragging.delta.y;
+					this.selectedBlock.height -= context.dragging.delta.y;
+
+					break;
+				case 'bottom-left':
+					this.selectedBlock.height += context.dragging.delta.y;
+					this.selectedBlock.x += context.dragging.delta.x;
+					this.selectedBlock.width -= context.dragging.delta.x;
+
+					break;
 			}
+
+			this.selectedBlock.width = Math.max(this.selectedBlock.width, 1);
+			this.selectedBlock.height = Math.max(this.selectedBlock.height, 1);
 
 			var bounds = this.selectedBlock.getBounds();
 			this.pivots = [
 				new Pivot(bounds.top, 'top'),
+				new Pivot(bounds.topRight, 'top-right'),
 				new Pivot(bounds.right, 'right'),
+				new Pivot(bounds.bottomRight, 'bottom-right'),
 				new Pivot(bounds.bottom, 'bottom'),
-				new Pivot(bounds.left, 'left')
+				new Pivot(bounds.bottomLeft, 'bottom-left'),
+				new Pivot(bounds.left, 'left'),
+				new Pivot(bounds.topLeft, 'top-left')
 			];
 		}
 	};
@@ -111,9 +174,13 @@
 			var bounds = block.getBounds();
 			this.pivots = [
 				new Pivot(bounds.top, 'top'),
+				new Pivot(bounds.topRight, 'top-right'),
 				new Pivot(bounds.right, 'right'),
+				new Pivot(bounds.bottomRight, 'bottom-right'),
 				new Pivot(bounds.bottom, 'bottom'),
-				new Pivot(bounds.left, 'left')
+				new Pivot(bounds.bottomLeft, 'bottom-left'),
+				new Pivot(bounds.left, 'left'),
+				new Pivot(bounds.topLeft, 'top-left')
 			];
 		}
 	};

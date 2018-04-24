@@ -15,10 +15,14 @@
 		var centerY = this.y + this.height / 2;
 
 		return {
-			left: { x: left, y: centerY },
-			right: { x: right, y: centerY },
 			top: { x: centerX, y: top },
-			bottom: { x: centerX, y: bottom }
+			topRight: { x: right, y: top },
+			right: { x: right, y: centerY },
+			bottomRight: { x: right, y: bottom },
+			bottom: { x: centerX, y: bottom },
+			bottomLeft: { x: left, y: bottom },
+			left: { x: left, y: centerY },
+			topLeft: { x: left, y: top }
 		};
 	};
 
