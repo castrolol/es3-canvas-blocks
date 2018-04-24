@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Canvas Sample</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="./style/main.css" />
+    <script src="./js/canvas.js"></script>
+    <script src="./js/ball-bounce.js"></script>
+</head>
+<body>
+    <canvas id="canvas" ></canvas>
+    
+    <script>
+
+        var canvas = document.querySelector("#canvas");
+        var ball = new BallBounce();
+
+        window.canvasHandler = new CanvasHandler(canvas, { width: 800, height: 600 });
+
+        canvasHandler.startUpdate();
+
+
+ball.attach(canvasHandler);
+
+    </script>
+
+</body>
+</html>
