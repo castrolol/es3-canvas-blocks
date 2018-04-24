@@ -92,6 +92,70 @@
 		}
 	};
 
+	BlocksDrawner.prototype.handlePivotDragging = function(pivot, context) {
+		switch (pivot.type) {
+			case 'left':
+				this.selectedBlock.x += context.dragging.delta.x;
+				this.selectedBlock.width -= context.dragging.delta.x;
+				break;
+
+			case 'right':
+				this.selectedBlock.width += context.dragging.delta.x;
+				break;
+
+			case 'top':
+				this.selectedBlock.y += context.dragging.delta.y;
+				this.selectedBlock.height -= context.dragging.delta.y;
+				break;
+
+			case 'bottom':
+				this.selectedBlock.height += context.dragging.delta.y;
+
+				break;
+
+			case 'top-left':
+				this.selectedBlock.y += context.dragging.delta.y;
+				this.selectedBlock.height -= context.dragging.delta.y;
+				this.selectedBlock.x += context.dragging.delta.x;
+				this.selectedBlock.width -= context.dragging.delta.x;
+				break;
+
+			case 'bottom-right':
+				this.selectedBlock.height += context.dragging.delta.y;
+				this.selectedBlock.width += context.dragging.delta.x;
+
+				break;
+
+			case 'top-right':
+				this.selectedBlock.width += context.dragging.delta.x;
+				this.selectedBlock.y += context.dragging.delta.y;
+				this.selectedBlock.height -= context.dragging.delta.y;
+
+				break;
+			case 'bottom-left':
+				this.selectedBlock.height += context.dragging.delta.y;
+				this.selectedBlock.x += context.dragging.delta.x;
+				this.selectedBlock.width -= context.dragging.delta.x;
+
+				break;
+		}
+
+		this.selectedBlock.width = Math.max(this.selectedBlock.width, 1);
+		this.selectedBlock.height = Math.max(this.selectedBlock.height, 1);
+
+		var bounds = this.selectedBlock.getBounds();
+		this.pivots = [
+			new Pivot(bounds.top, 'top'),
+			new Pivot(bounds.topRight, 'top-right'),
+			new Pivot(bounds.right, 'right'),
+			new Pivot(bounds.bottomRight, 'bottom-right'),
+			new Pivot(bounds.bottom, 'bottom'),
+			new Pivot(bounds.bottomLeft, 'bottom-left'),
+			new Pivot(bounds.left, 'left'),
+			new Pivot(bounds.topLeft, 'top-left')
+		];
+	};
+
 	BlocksDrawner.prototype.handleDragging = function(context) {
 		if (this.blockDragging) {
 			this.blockDragging.x += context.dragging.delta.x;
@@ -99,74 +163,16 @@
 		}
 
 		if (this.pivotDragging) {
-			var pivot = this.pivotDragging;
-
-			switch (pivot.type) {
-				case 'left':
-					this.selectedBlock.x += context.dragging.delta.x;
-					this.selectedBlock.width -= context.dragging.delta.x;
-					break;
-
-				case 'right':
-					this.selectedBlock.width += context.dragging.delta.x;
-					break;
-
-				case 'top':
-					this.selectedBlock.y += context.dragging.delta.y;
-					this.selectedBlock.height -= context.dragging.delta.y;
-					break;
-
-				case 'bottom':
-					this.selectedBlock.height += context.dragging.delta.y;
-
-					break;
-
-				case 'top-left':
-					this.selectedBlock.y += context.dragging.delta.y;
-					this.selectedBlock.height -= context.dragging.delta.y;
-					this.selectedBlock.x += context.dragging.delta.x;
-					this.selectedBlock.width -= context.dragging.delta.x;
-					break;
-
-				case 'bottom-right':
-					this.selectedBlock.height += context.dragging.delta.y;
-					this.selectedBlock.width += context.dragging.delta.x;
-
-					break;
-
-				case 'top-right':
-					this.selectedBlock.width += context.dragging.delta.x;
-					this.selectedBlock.y += context.dragging.delta.y;
-					this.selectedBlock.height -= context.dragging.delta.y;
-
-					break;
-				case 'bottom-left':
-					this.selectedBlock.height += context.dragging.delta.y;
-					this.selectedBlock.x += context.dragging.delta.x;
-					this.selectedBlock.width -= context.dragging.delta.x;
-
-					break;
-			}
-
-			this.selectedBlock.width = Math.max(this.selectedBlock.width, 1);
-			this.selectedBlock.height = Math.max(this.selectedBlock.height, 1);
-
-			var bounds = this.selectedBlock.getBounds();
-			this.pivots = [
-				new Pivot(bounds.top, 'top'),
-				new Pivot(bounds.topRight, 'top-right'),
-				new Pivot(bounds.right, 'right'),
-				new Pivot(bounds.bottomRight, 'bottom-right'),
-				new Pivot(bounds.bottom, 'bottom'),
-				new Pivot(bounds.bottomLeft, 'bottom-left'),
-				new Pivot(bounds.left, 'left'),
-				new Pivot(bounds.topLeft, 'top-left')
-			];
+			this.handlePivotDragging(this.pivotDragging, context);
 		}
 	};
 
 	BlocksDrawner.prototype.selectBlock = function(block) {
 		this.selectedBlock = block;
+
+		this.blocks = this.blocks.filter( x => this.selectBlock != x);
+
+		this.blocks.push(block);
 
 		if (!block) {
 			this.pivots = [];
